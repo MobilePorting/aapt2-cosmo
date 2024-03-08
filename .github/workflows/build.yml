@@ -29,7 +29,7 @@ jobs:
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-          ndk-version: r26c
+          ndk-version: r23c
           add-to-path: false
       - run: ./build.sh ${{ matrix.target_arch }}
         env:
