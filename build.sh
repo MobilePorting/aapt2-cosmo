@@ -39,7 +39,7 @@ git apply patches/androidfw.patch --whitespace=fix
 git apply patches/boringssl.patch --whitespace=fix
 
 # Define all the compilers, libraries and targets.
-api="30"
+api="34"
 architecture=$1
 declare -A compilers=(
     [x86_64]=x86_64-linux-android
