@@ -18,5 +18,5 @@ target_include_directories(libziparchive PRIVATE
     ${SRC}/libziparchive/incfs_support/include
     ${SRC}/libbase/include 
     ${SRC}/logging/liblog/include
-    ${SRC}/boringssl/third_party/googletest/include
+    ${SRC}/boringssl/third_party/googletest/googletest/include
     )

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14.2)
 project(sdk-tools)
-
+set(THREADS_PREFER_PTHREAD_FLAG OFF)
 if(ANDROID_ABI STREQUAL "arm64-v8a" OR ANDROID_ABI STREQUAL "armeabi-v7a")
     enable_language(ASM)
 elseif(ANDROID_ABI STREQUAL "x86_64" OR ANDROID_ABI STREQUAL "x86")
@@ -10,8 +10,8 @@ else()
 endif()
 
 # set global cflags and cxxflags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fcolor-diagnostics -fPIC -Wno-attributes -std=gnu11")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcolor-diagnostics -fPIC -Wno-attributes -std=gnu++2a")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DHAVE_REALLOCARRAY -D_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION -fcolor-diagnostics -fPIC -Wno-attributes -std=gnu11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_REALLOCARRAY -D_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION -fcolor-diagnostics -fPIC -Wno-attributes -std=gnu++2a")
 # static link
 set(CMAKE_EXE_LINKER_FLAGS "-static")
 
@@ -38,7 +38,7 @@ endif()
 add_subdirectory(src/boringssl EXCLUDE_FROM_ALL)
 add_subdirectory(src/fmtlib EXCLUDE_FROM_ALL)
 add_subdirectory(src/pcre EXCLUDE_FROM_ALL)
-add_subdirectory(src/expat EXCLUDE_FROM_ALL)
+add_subdirectory(src/expat/expat EXCLUDE_FROM_ALL)
 add_subdirectory(src/zopfli EXCLUDE_FROM_ALL)
 add_subdirectory(src/protobuf/cmake EXCLUDE_FROM_ALL)
 

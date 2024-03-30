@@ -21,7 +21,7 @@ add_library(libcutils STATIC
     ${SRC}/core/libcutils/str_parms.cpp
     ${SRC}/core/libcutils/strlcpy.c
     ${SRC}/core/libcutils/trace-host.cpp
-    ${SRC}/core/libcutils/threads.cpp
+    # ${SRC}/core/libcutils/threads.cpp
     )
 
 target_compile_definitions(libcutils PRIVATE -D_GNU_SOURCE)

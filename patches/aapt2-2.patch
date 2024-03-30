@@ -1,0 +1,145 @@
+diff --git a/src/base/tools/aapt2/ResourceTable.cpp b/src/base/tools/aapt2/ResourceTable.cpp
+index a3b0b45df5c3..289dee7542e6 100644
+--- a/src/base/tools/aapt2/ResourceTable.cpp
++++ b/src/base/tools/aapt2/ResourceTable.cpp
+@@ -470,9 +470,9 @@ bool ResourceTable::AddResource(NewResource&& res, android::IDiagnostics* diag)
+   const bool validate = validation_ == Validation::kEnabled;
+   const android::Source source = res.value ? res.value->GetSource() : android::Source{};
+   if (validate && !res.allow_mangled && !IsValidResourceEntryName(res.name.entry)) {
+-    diag->Error(android::DiagMessage(source)
+-                << "resource '" << res.name << "' has invalid entry name '" << res.name.entry);
+-    return false;
++    diag->Warn(android::DiagMessage(source)
++                << "resource '" << res.name << "' has invalid entry name, skipping... '" << res.name.entry);
++    return true;
+   }
+ 
+   if (res.id.has_value() && !res.id->first.is_valid()) {
+diff --git a/src/base/tools/aapt2/ResourceUtils.cpp b/src/base/tools/aapt2/ResourceUtils.cpp
+index d358df98ada6..a9fe4f431db8 100644
+--- a/src/base/tools/aapt2/ResourceUtils.cpp
++++ b/src/base/tools/aapt2/ResourceUtils.cpp
+@@ -217,7 +217,7 @@ bool ParseAttributeReference(StringPiece str, ResourceNameRef* out_ref) {
+     }
+ 
+     if (!type.empty() && type != "attr") {
+-      return false;
++      // Apktool: Don't die out if private resource.
+     }
+ 
+     if (entry.empty()) {
+diff --git a/src/base/tools/aapt2/Resources.proto b/src/base/tools/aapt2/Resources.proto
+index 1d7fd1d17dcd..e6861d4e2133 100644
+--- a/src/base/tools/aapt2/Resources.proto
++++ b/src/base/tools/aapt2/Resources.proto
+@@ -16,7 +16,7 @@
+ 
+ syntax = "proto3";
+ 
+-import "frameworks/base/tools/aapt2/Configuration.proto";
++import "Configuration.proto";
+ 
+ package aapt.pb;
+ 
+diff --git a/src/base/tools/aapt2/ResourcesInternal.proto b/src/base/tools/aapt2/ResourcesInternal.proto
+index b0ed3da33368..97aa5af7724f 100644
+--- a/src/base/tools/aapt2/ResourcesInternal.proto
++++ b/src/base/tools/aapt2/ResourcesInternal.proto
+@@ -16,8 +16,8 @@
+ 
+ syntax = "proto3";
+ 
+-import "frameworks/base/tools/aapt2/Configuration.proto";
+-import "frameworks/base/tools/aapt2/Resources.proto";
++import "Configuration.proto";
++import "Resources.proto";
+ 
+ package aapt.pb.internal;
+ 
+diff --git a/src/base/tools/aapt2/cmd/Link.cpp b/src/base/tools/aapt2/cmd/Link.cpp
+index 642a5618b6ad..9b38cf1bbb91 100644
+--- a/src/base/tools/aapt2/cmd/Link.cpp
++++ b/src/base/tools/aapt2/cmd/Link.cpp
+@@ -2483,9 +2483,9 @@ int LinkCommand::Action(const std::vector<std::string>& args) {
+     if (package_id_int > std::numeric_limits<uint8_t>::max()
+         || package_id_int == kFrameworkPackageId
+         || (!options_.allow_reserved_package_id && package_id_int < kAppPackageId)) {
+-      context.GetDiagnostics()->Error(
++      context.GetDiagnostics()->Warn(
+           android::DiagMessage() << StringPrintf(
+-              "invalid package ID 0x%02x. Must be in the range 0x7f-0xff.", package_id_int));
++              "invalid package ID 0x%02x. Must be in the range 0x7f-0xff. Ignoring...", package_id_int));
+       return 1;
+     }
+     context.SetPackageId(static_cast<uint8_t>(package_id_int));
+diff --git a/src/base/tools/aapt2/java/JavaClassGenerator.cpp b/src/base/tools/aapt2/java/JavaClassGenerator.cpp
+index 58f656458177..4a0b38f3842d 100644
+--- a/src/base/tools/aapt2/java/JavaClassGenerator.cpp
++++ b/src/base/tools/aapt2/java/JavaClassGenerator.cpp
+@@ -58,6 +58,8 @@ static const std::set<StringPiece> sJavaIdentifiers = {
+     "true",       "false",        "null"};
+ 
+ static bool IsValidSymbol(StringPiece symbol) {
++  // Apktool: Everything is a valid symbol
++  return true;
+   return sJavaIdentifiers.find(symbol) == sJavaIdentifiers.end();
+ }
+ 
+diff --git a/src/base/tools/aapt2/link/PrivateAttributeMover.cpp b/src/base/tools/aapt2/link/PrivateAttributeMover.cpp
+index 8c6c743dfff0..7a6d8ff0b93d 100644
+--- a/src/base/tools/aapt2/link/PrivateAttributeMover.cpp
++++ b/src/base/tools/aapt2/link/PrivateAttributeMover.cpp
+@@ -82,7 +82,6 @@ bool PrivateAttributeMover::Consume(IAaptContext* context, ResourceTable* table)
+ 
+     auto attr_private_type = ResourceNamedTypeWithDefaultName(ResourceType::kAttrPrivate);
+     ResourceTableType* priv_attr_type = package->FindOrCreateType(attr_private_type);
+-    CHECK(priv_attr_type->entries.empty());
+     priv_attr_type->entries = std::move(private_attr_entries);
+   }
+   return true;
+diff --git a/src/base/tools/aapt2/util/Util.cpp b/src/base/tools/aapt2/util/Util.cpp
+index 3d83caf29bba..e7ef84fa7834 100644
+--- a/src/base/tools/aapt2/util/Util.cpp
++++ b/src/base/tools/aapt2/util/Util.cpp
+@@ -27,7 +27,6 @@
+ #include "androidfw/BigBuffer.h"
+ #include "androidfw/StringPiece.h"
+ #include "androidfw/Util.h"
+-#include "build/version.h"
+ #include "text/Unicode.h"
+ #include "text/Utf8Iterator.h"
+ #include "utils/Unicode.h"
+@@ -229,32 +228,7 @@ std::string GetToolFingerprint() {
+   // Update minor version whenever a feature or flag is added.
+   static const char* const sMinorVersion = "19";
+ 
+-  // The build id of aapt2 binary.
+-  static const std::string sBuildId = [] {
+-    std::string buildNumber = android::build::GetBuildNumber();
+-
+-    if (android::base::StartsWith(buildNumber, "eng.")) {
+-      // android::build::GetBuildNumber() returns something like "eng.user.20230725.214219" where
+-      // the latter two parts are "yyyyMMdd.HHmmss" at build time. Use "yyyyMM" in the fingerprint.
+-      std::vector<std::string> parts = util::Split(buildNumber, '.');
+-      int buildYear;
+-      int buildMonth;
+-      if (parts.size() < 3 || parts[2].length() < 6 ||
+-          !android::base::ParseInt(parts[2].substr(0, 4), &buildYear) ||
+-          !android::base::ParseInt(parts[2].substr(4, 2), &buildMonth)) {
+-        // Fallback to localtime() if GetBuildNumber() returns an unexpected output.
+-        time_t now = time(0);
+-        tm* ltm = localtime(&now);
+-        buildYear = 1900 + ltm->tm_year;
+-        buildMonth = 1 + ltm->tm_mon;
+-      }
+-
+-      buildNumber = android::base::StringPrintf("eng.%04d%02d", buildYear, buildMonth);
+-    }
+-    return buildNumber;
+-  }();
+-
+-  return android::base::StringPrintf("%s.%s-%s", sMajorVersion, sMinorVersion, sBuildId.c_str());
++  return android::base::StringPrintf("%s.%s", sMajorVersion, sMinorVersion);
+ }
+ 
+ static size_t ConsumeDigits(const char* start, const char* end) {

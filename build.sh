@@ -1,5 +1,5 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+set -eux
 # Check for NDK_TOOLCHAIN environment variable and abort if it is not set.
 if [[ -z "${NDK_TOOLCHAIN}" ]]; then
     echo "Please specify the Android NDK environment variable \"NDK_TOOLCHAIN\"."
@@ -28,15 +28,6 @@ sudo ldconfig
 
 # Go back.
 cd "$root" || exit 1
-
-# Apply patches.
-git apply patches/incremental_delivery.patch --whitespace=fix
-git apply patches/libpng.patch --whitespace=fix
-git apply patches/selinux.patch  --whitespace=fix
-git apply patches/protobuf.patch --whitespace=fix
-git apply patches/aapt2.patch --whitespace=fix
-git apply patches/androidfw.patch --whitespace=fix
-git apply patches/boringssl.patch --whitespace=fix
 
 # Define all the compilers, libraries and targets.
 api="34"
@@ -73,10 +64,12 @@ compiler_arch="${compilers[$architecture]}"
 c_compiler="$compiler_arch$api-clang"
 cxx_compiler="${c_compiler}++"
 
-# Copy libc.a to libpthread.a.
-lib_path="$NDK_TOOLCHAIN/sysroot/usr/lib/${lib_arch[$architecture]}/$api/"
-cp -n "$lib_path/libc.a"  "$lib_path/libpthread.a"
-
+# # Copy libc.a to libpthread.a.
+# lib_path="$NDK_TOOLCHAIN/sysroot/usr/lib/${lib_arch[$architecture]}/$api/"
+# if [ ! -f "$lib_path/libpthread.a" ]; then
+    # cp "$lib_path/libc.a" "$lib_path/libpthread.a"
+# fi
+protoc_path=$(command -v protoc)
 # Run make for the target architecture.
 compiler_bin_directory="$NDK_TOOLCHAIN/bin/"
 cmake -GNinja \
@@ -86,7 +79,7 @@ cmake -GNinja \
 -DCMAKE_BUILD_TYPE=Release \
 -DANDROID_ABI="$architecture" \
 -DTARGET_ABI="${target_abi[$architecture]}" \
--DPROTOC_PATH="/usr/local/bin/protoc" \
+-DPROTOC_PATH="$protoc_path" \
 -DCMAKE_SYSROOT="$NDK_TOOLCHAIN/sysroot" \
 .. || exit 1
 

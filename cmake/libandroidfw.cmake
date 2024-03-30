@@ -1,23 +1,32 @@
 add_library(libandroidfw STATIC
     ${SRC}/base/libs/androidfw/ApkAssets.cpp
+    ${SRC}/base/libs/androidfw/ApkParsing.cpp
     ${SRC}/base/libs/androidfw/Asset.cpp
     ${SRC}/base/libs/androidfw/AssetDir.cpp
     ${SRC}/base/libs/androidfw/AssetManager.cpp
     ${SRC}/base/libs/androidfw/AssetManager2.cpp
     ${SRC}/base/libs/androidfw/AssetsProvider.cpp
     ${SRC}/base/libs/androidfw/AttributeResolution.cpp
+    ${SRC}/base/libs/androidfw/BigBuffer.cpp
+    ${SRC}/base/libs/androidfw/BigBufferStream.cpp
     ${SRC}/base/libs/androidfw/ChunkIterator.cpp
     ${SRC}/base/libs/androidfw/ConfigDescription.cpp
+    ${SRC}/base/libs/androidfw/FileStream.cpp
     ${SRC}/base/libs/androidfw/Idmap.cpp
     ${SRC}/base/libs/androidfw/LoadedArsc.cpp
     ${SRC}/base/libs/androidfw/Locale.cpp
     ${SRC}/base/libs/androidfw/LocaleData.cpp
     ${SRC}/base/libs/androidfw/misc.cpp
+    ${SRC}/base/libs/androidfw/NinePatch.cpp
     ${SRC}/base/libs/androidfw/ObbFile.cpp
+    ${SRC}/base/libs/androidfw/Png.cpp
+    ${SRC}/base/libs/androidfw/PngChunkFilter.cpp
+    ${SRC}/base/libs/androidfw/PngCrunch.cpp
     ${SRC}/base/libs/androidfw/PosixUtils.cpp
     ${SRC}/base/libs/androidfw/ResourceTypes.cpp
     ${SRC}/base/libs/androidfw/ResourceUtils.cpp
     ${SRC}/base/libs/androidfw/StreamingZipInflater.cpp
+    ${SRC}/base/libs/androidfw/StringPool.cpp
     ${SRC}/base/libs/androidfw/TypeWrappers.cpp
     ${SRC}/base/libs/androidfw/Util.cpp
     ${SRC}/base/libs/androidfw/ZipFileRO.cpp
@@ -31,6 +40,7 @@ target_compile_definitions(libandroidfw PRIVATE
 
 target_include_directories(libandroidfw PUBLIC
     ${SRC}/base/libs/androidfw/include
+    ${SRC}/base/libs/androidfw/include_pathutils
     ${SRC}/core/libcutils/include
     ${SRC}/logging/liblog/include
     ${SRC}/core/libsystem/include
@@ -41,6 +51,10 @@ target_include_directories(libandroidfw PUBLIC
     ${SRC}/libziparchive/include
     ${SRC}/incremental_delivery/incfs/util/include
     ${SRC}/incremental_delivery/incfs/kernel-headers
+    ${SRC}/libpng
     )
     
-target_link_libraries(libandroidfw PUBLIC fmt::fmt)
+target_link_libraries(libandroidfw PUBLIC
+    fmt::fmt
+    libpng
+    )

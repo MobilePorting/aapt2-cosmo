@@ -1,0 +1,50 @@
+diff --git a/src/base/libs/androidfw/ResourceTypes.cpp b/src/base/libs/androidfw/ResourceTypes.cpp
+index 4c992becda7c..760c28c14b57 100644
+--- a/src/base/libs/androidfw/ResourceTypes.cpp
++++ b/src/base/libs/androidfw/ResourceTypes.cpp
+@@ -45,7 +45,7 @@
+ #include <utils/String16.h>
+ #include <utils/String8.h>
+ 
+-#ifdef __ANDROID__
++#if 0
+ #include <binder/TextOutput.h>
+ 
+ #endif
+diff --git a/src/base/libs/androidfw/include/androidfw/ResourceTypes.h b/src/base/libs/androidfw/include/androidfw/ResourceTypes.h
+index c0514fdff469..7fd4b88991a2 100644
+--- a/src/base/libs/androidfw/include/androidfw/ResourceTypes.h
++++ b/src/base/libs/androidfw/include/androidfw/ResourceTypes.h
+@@ -943,6 +943,32 @@ struct ResTable_package
+ // or 40 bytes to make it 4 bytes aligned.
+ #define RESTABLE_MAX_LOCALE_LEN 40
+ 
++// BACKPORT FROM https://android.googlesource.com/platform/frameworks/native/+/master/include/android/configuration.h
++enum {
++    /**
++     * Bit mask for
++     * <a href="/guide/topics/resources/providing-resources.html#GrammaticalInflectionQualifier">grammatical gender</a>
++     * configuration.
++     */
++    ACONFIGURATION_GRAMMATICAL_GENDER = 0x20000,
++
++    /**
++     * <a href="/guide/topics/resources/providing-resources.html#GrammaticalInflectionQualifier">Grammatical gender</a>: not specified.
++     */
++    ACONFIGURATION_GRAMMATICAL_GENDER_ANY = 0,
++    /**
++     * <a href="/guide/topics/resources/providing-resources.html#GrammaticalInflectionQualifier">Grammatical gender</a>: neuter.
++     */
++    ACONFIGURATION_GRAMMATICAL_GENDER_NEUTER = 1,
++    /**
++     * <a href="/guide/topics/resources/providing-resources.html#GrammaticalInflectionQualifier">Grammatical gender</a>: feminine.
++     */
++    ACONFIGURATION_GRAMMATICAL_GENDER_FEMININE = 2,
++    /**
++     * <a href="/guide/topics/resources/providing-resources.html#GrammaticalInflectionQualifier">Grammatical gender</a>: masculine.
++     */
++    ACONFIGURATION_GRAMMATICAL_GENDER_MASCULINE = 3
++};
+ 
+ /**
+  * Describes a particular resource configuration.
