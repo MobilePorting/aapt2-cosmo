@@ -28,7 +28,7 @@ jobs:
       - run: ./patch.sh
       - run: ./build.sh ${{ matrix.target_arch }}
         env:
-          NDK_TOOLCHAIN: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64
+          NDK_TOOLCHAIN: ${{ runner.temp }}/cosmocc-4.0.2
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
