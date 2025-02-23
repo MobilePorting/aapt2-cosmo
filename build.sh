@@ -33,12 +33,12 @@ cd "$root" || exit 1
 # Define all the compilers, libraries and targets.
 architecture=$1
 declare -A compilers=(
-    [x86_64]=x86_64-unknown-cosmo
-    [arm64-v8a]=aarch64-unknown-cosmo
+    [x86_64]=x86_64-linux-cosmo
+    [arm64-v8a]=aarch64-linux-cosmo
 )
 declare -A lib_arch=(
-    [x86_64]=x86_64-unknown-cosmo
-    [arm64-v8a]=aarch64-unknown-cosmo
+    [x86_64]=x86_64-linux-cosmo
+    [arm64-v8a]=aarch64-linux-cosmo
 )
 declare -A target_abi=(
     [x86_64]=x86_64
