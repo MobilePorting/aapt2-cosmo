@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target_arch: [x86_64, arm64]
+        target_arch: [x86_64, arm64-v8a]
       fail-fast: false
     steps:
       - name: Checkout
