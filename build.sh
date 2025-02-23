@@ -14,6 +14,7 @@ autogen \
 autoconf \
 libtool \
 build-essential \
+qemu-user-static \
 -y || exit 1
 
 root="$(pwd)"
@@ -30,25 +31,18 @@ sudo ldconfig
 cd "$root" || exit 1
 
 # Define all the compilers, libraries and targets.
-api="34"
 architecture=$1
 declare -A compilers=(
-    [x86_64]=x86_64-linux-android
-    [x86]=i686-linux-android
-    [arm64-v8a]=aarch64-linux-android
-    [armeabi-v7a]=armv7a-linux-androideabi
+    [x86_64]=x86_64-unknown-cosmo
+    [arm64-v8a]=aarch64-unknown-cosmo
 )
 declare -A lib_arch=(
-    [x86_64]=x86_64-linux-android
-    [x86]=i686-linux-android
-    [arm64-v8a]=aarch64-linux-android
-    [armeabi-v7a]=arm-linux-androideabi
+    [x86_64]=x86_64-unknown-cosmo
+    [arm64-v8a]=aarch64-unknown-cosmo
 )
 declare -A target_abi=(
     [x86_64]=x86_64
-    [x86]=x86
     [arm64-v8a]=aarch64
-    [armeabi-v7a]=arm
 )
 
 build_directory="build"
@@ -61,11 +55,11 @@ bin_directory="$root/dist/$architecture"
 
 # Define the compiler architecture and compiler.
 compiler_arch="${compilers[$architecture]}"
-c_compiler="$compiler_arch$api-clang"
-cxx_compiler="${c_compiler}++"
+c_compiler="$compiler_arch-gcc"
+cxx_compiler="$compiler_arch-g++"
 
 # # Copy libc.a to libpthread.a.
-# lib_path="$NDK_TOOLCHAIN/sysroot/usr/lib/${lib_arch[$architecture]}/$api/"
+# lib_path="$NDK_TOOLCHAIN/sysroot/usr/lib/${lib_arch[$architecture]}/"
 # if [ ! -f "$lib_path/libpthread.a" ]; then
     # cp "$lib_path/libc.a" "$lib_path/libpthread.a"
 # fi
@@ -80,12 +74,12 @@ cmake -GNinja \
 -DANDROID_ABI="$architecture" \
 -DTARGET_ABI="${target_abi[$architecture]}" \
 -DPROTOC_PATH="$protoc_path" \
--DCMAKE_SYSROOT="$NDK_TOOLCHAIN/sysroot" \
+-DCMAKE_SYSROOT="$NDK_TOOLCHAIN" \
 .. || exit 1
 
 ninja || exit 1
 
-"$NDK_TOOLCHAIN/bin/llvm-strip" --strip-unneeded  "$aapt_binary_path"
+"$NDK_TOOLCHAIN/bin/$compiler_arch-strip" --strip-unneeded "$aapt_binary_path"
 
 # Create bin directory.
 mkdir -p "$bin_directory"
