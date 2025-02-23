@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target_arch: [x86_64, x86, arm64-v8a, armeabi-v7a]
+        target_arch: [x86_64, arm64]
       fail-fast: false
     steps:
       - name: Checkout
@@ -26,11 +26,9 @@ jobs:
         with:
           submodules: 'true'
 
-      - uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r26c
-          add-to-path: false
+      - name: Setup cosmo toolchain
+        uses: bjia56/setup-cosmocc@v0.0.3
+
       - run: ./patch.sh
       - run: ./build.sh ${{ matrix.target_arch }}
         env:
