@@ -55,8 +55,8 @@ bin_directory="$root/dist/$architecture"
 
 # Define the compiler architecture and compiler.
 compiler_arch="${compilers[$architecture]}"
-c_compiler="$compiler_arch-gcc"
-cxx_compiler="$compiler_arch-g++"
+c_compiler="$compiler_arch-cc"
+cxx_compiler="$compiler_arch-c++"
 
 # # Copy libc.a to libpthread.a.
 # lib_path="$NDK_TOOLCHAIN/sysroot/usr/lib/${lib_arch[$architecture]}/"
