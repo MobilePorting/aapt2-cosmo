@@ -74,7 +74,7 @@ cmake -GNinja \
 -DANDROID_ABI="$architecture" \
 -DTARGET_ABI="${target_abi[$architecture]}" \
 -DPROTOC_PATH="$protoc_path" \
--DCMAKE_SYSROOT="$NDK_TOOLCHAIN" \
+# -DCMAKE_SYSROOT="$NDK_TOOLCHAIN" \
 .. || exit 1
 
 ninja || exit 1
